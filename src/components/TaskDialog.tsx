@@ -51,7 +51,30 @@ export const TaskDialog: React.FC<TaskDialogProps> = ({
 
   const isEditing = !!task;
 
-  
+  useEffect(() => {
+  if (task) {
+    setTitle(task.title);
+    setDescription(task.description);
+    setImportance(task.importance);
+    setUrgency(task.urgency);
+    setDeadline(task.deadline);
+    setCompleted(task.completed);
+  } else if (initialPosition) {
+    setTitle('');
+    setDescription('');
+    setImportance(initialPosition.importance);
+    setUrgency(initialPosition.urgency);
+    setDeadline(undefined);
+    setCompleted(false);
+  } else {
+    setTitle('');
+    setDescription('');
+    setImportance(50);
+    setUrgency(50);
+    setDeadline(undefined);
+    setCompleted(false);
+  }
+}, [task, initialPosition, isOpen]);
 
   const handleSaveClick = () => {
     if (!title.trim()) return;
