@@ -12,6 +12,17 @@ import { Plus, LayoutGrid, List, Sparkles, Trash2, BarChart3, CheckCircle2, Circ
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
+interface StoredTask {
+  id?: string;
+  title?: string;
+  description?: string;
+  importance?: number;
+  urgency?: number;
+  completed?: boolean;
+  deadline?: string;
+  createdAt?: string;
+}
+
 function App() {
   // 使用 useLocalStorage 管理任务数据，自动处理本地存储的读取和写入
   // 通过自定义 deserialize/serialize 正确处理 Date 类型的序列化
@@ -25,7 +36,7 @@ function App() {
           console.error('[App] localStorage 中的任务数据不是数组，已重置为空数组');
           return [];
         }
-        return parsed.map((t: any) => ({
+        return parsed.map((t: StoredTask) => ({
           ...t,
           deadline: t.deadline ? new Date(t.deadline) : undefined,
           createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
@@ -75,12 +86,12 @@ function App() {
         return [...prev, task];
       }
     });
-  }, []);
+  }, [setTasks]);
 
   const handleDeleteTask = useCallback((id: string) => {
     setTasks(prev => prev.filter(t => t.id !== id));
     toast.success('任务已删除');
-  }, []);
+  }, [setTasks]);
 
   const handleToggleComplete = useCallback((id: string) => {
     setTasks(prev => {
@@ -96,7 +107,7 @@ function App() {
       }
       return prev;
     });
-  }, []);
+  }, [setTasks]);
 
   const handleClearAll = useCallback(() => {
     setShowClearConfirm(true);
@@ -105,7 +116,7 @@ function App() {
   const handleConfirmClear = useCallback(() => {
     setTasks([]);
     toast.success('所有任务已清空');
-  }, []);
+  }, [setTasks]);
 
   const handleAddNew = useCallback(() => {
     setSelectedTask(null);
@@ -324,6 +335,7 @@ function App() {
 
       {/* 任务对话框 */}
       <TaskDialog
+        key={selectedTask?.id || 'new'}
         task={selectedTask}
         isOpen={isDialogOpen}
         onClose={() => {
