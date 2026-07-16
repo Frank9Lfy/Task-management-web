@@ -1,6 +1,9 @@
 # Task Management Web
 
-A web application helping you better manage your tasks and get rid of deadlines, mainly made by vibe coding.
+这是一个基于四象限法则创建的时间管理辅助工具
+
+A web application helping you better manage your tasks and get rid of deadlines(mainly made by vibe coding).
+
 
 ## 🚀 Features
 
@@ -10,51 +13,41 @@ A web application helping you better manage your tasks and get rid of deadlines,
 - **Modern UI**: Clean and intuitive user interface for better productivity
 - **Real-time Updates**: Instant updates as you manage your tasks
 
-## 🛠️ Technology Stack
 
-- **Frontend**: TypeScript (97.4%) - Primary language for type-safe development
-- **Styling**: CSS (1.2%) & HTML (0.1%) - Responsive design and markup
-- **JavaScript**: (1.3%) - Additional scripting support
-- **Framework**: [Add your framework here - React/Vue/Angular, etc.]
 
-## 📦 Installation
+## 📦 安装配置与运行
 
-### Prerequisites
+### 配置
 - Node.js (v14 or higher)
-- npm or yarn package manager
+- npm 
 
-### Steps
+### 步骤
 
-1. **Clone the repository**
+1. **克隆仓库**
    ```bash
    git clone https://github.com/Frank9Lfy/Task-management-web.git
    cd Task-management-web
    ```
 
-2. **Install dependencies**
+2. **安装依赖的环境（仅初次使用或删除了node_modules文件夹）**
    ```bash
    npm install
-   # or
-   yarn install
    ```
 
-3. **Start the development server**
+3. **使用开发者模式本地运行**
    ```bash
-   npm start
-   # or
-   yarn start
-   ```
+   npm run dev
 
-4. **Build for production**
+   ```
+ **构建模式（生成最终上线用的文件）**
    ```bash
    npm run build
-   # or
-   yarn build
+
    ```
 
-## 💡 Usage
+## 💡 使用说明
 
-[Add detailed usage instructions here]
+
 
 ### Basic Example
 ```typescript
