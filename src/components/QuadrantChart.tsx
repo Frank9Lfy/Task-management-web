@@ -1,4 +1,4 @@
-import { useRef, useState,useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { getQuadrant, QUADRANT_CONFIG } from '@/types/task';
 import type { Task } from '@/types/task';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,25 +19,6 @@ export const QuadrantChart: React.FC<QuadrantChartProps> = ({
   const canvasRef = useRef<HTMLDivElement>(null);
   const [hoveredTask, setHoveredTask] = useState<Task | null>(null);
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
-
-  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
-
-useEffect(() => {
-  const canvas = canvasRef.current;
-  if (!canvas) return;
-
-  const update = () => {
-    setCanvasSize({
-      width: canvas.clientWidth,
-      height: canvas.clientHeight,
-    });
-  };
-
-  update();
-  const ro = new ResizeObserver(update);
-  ro.observe(canvas);
-  return () => ro.disconnect();
-}, []);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!canvasRef.current) return;
@@ -187,15 +168,15 @@ useEffect(() => {
             />
             {/* 坐标提示 */}
             <div 
-  className="absolute bg-purple-600 text-white text-xs px-2 py-1 rounded-lg shadow-lg pointer-events-none z-50"
-  style={{ 
-    left: mousePos.x + 10, 
-    top: mousePos.y - 30,
-  }}
->
-  重要性: {Math.round(100 - (mousePos.y / (canvasSize.height || 1)) * 100)} | 
-  紧急性: {Math.round((mousePos.x / (canvasSize.width || 1)) * 100)}
-</div>
+              className="absolute bg-purple-600 text-white text-xs px-2 py-1 rounded-lg shadow-lg pointer-events-none z-50"
+              style={{ 
+                left: mousePos.x + 10, 
+                top: mousePos.y - 30,
+              }}
+            >
+              重要性: {Math.round(100 - (mousePos.y / (canvasRef.current?.clientHeight || 1)) * 100)} | 
+              紧急性: {Math.round((mousePos.x / (canvasRef.current?.clientWidth || 1)) * 100)}
+            </div>
           </>
         )}
 

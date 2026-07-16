@@ -24,7 +24,7 @@ export function useLocalStorage<T>(
 ): [T, React.Dispatch<React.SetStateAction<T>>] {
     // 将 options 存入 ref，避免 serialize/deserialize 成为 effect 依赖
     const optionsRef = useRef(options);
-    // optionsRef.current = options;
+    optionsRef.current = options;
 
     // 标记是否是首次渲染，防止首次渲染时覆盖 localStorage 已有数据
     const isFirstRender = useRef(true);
@@ -46,7 +46,6 @@ export function useLocalStorage<T>(
 
     // 只在 state 明确被用户更新后（非首次渲染）才写入 localStorage
     useEffect(() => {
-        optionsRef.current = options;
         if (isFirstRender.current) {
             isFirstRender.current = false;
             return;
