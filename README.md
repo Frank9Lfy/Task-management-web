@@ -152,6 +152,8 @@ Task-management-web/
 
 ## 🤝**贡献指南**
 
+### 步骤
+
 我们欢迎各种贡献！请按以下步骤操作：
 
 1. **复刻（Fork）** 该仓库
@@ -164,6 +166,12 @@ Task-management-web/
     
 5. 开启一个**拉取请求（Pull Request）**
   
+### 额外说明
+
+本项目设有cli工作流[workflow](github.com/Frank9Lfy/Task-management-web/edit/Frank9Lfy-patch-0/.github/workflows/ci.yml)
+方便检查上传代码的可能错误
+
+
 
 ## 📝 License
 
