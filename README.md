@@ -168,7 +168,7 @@ Task-management-web/
   
 ### 额外说明
 
-本项目设有cli工作流[workflow](github.com/Frank9Lfy/Task-management-web/edit/Frank9Lfy-patch-0/.github/workflows/ci.yml)
+本项目设有cli工作流[workflow](https://github.com/Frank9Lfy/Task-management-web/Frank9Lfy-patch-0/.github/workflows/ci.yml)
 方便检查上传代码的可能错误
 
 
