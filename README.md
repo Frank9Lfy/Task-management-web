@@ -98,9 +98,9 @@ A web application helping you better manage your tasks and get rid of deadlines(
 
 ### 效果演示（部分功能）
 
-#### 演示视频（由于有大小限制，使用缩略图，点击即可）
+#### 演示视频
 
-
+[点击观看功能演示视频](https://www.bilibili.com/video/BV1VVKH6vEWv/?spm_id_from=333.1387.upload.video_card.click&vd_source=4103463234aa9151dcd495c6fa3f24f3)
   
   
 
