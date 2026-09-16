@@ -47,45 +47,40 @@ A web application helping you better manage your tasks and get rid of deadlines(
 
 1. **克隆仓库**
 
-   ```bash
+```bash
 
    git clone https://github.com/Frank9Lfy/Task-management-web.git
 
    cd Task-management-web
 
-   ```
+```
 
   
 
 2. **安装依赖的环境（仅初次使用或删除了node_modules文件夹）**
 
-   ```bash
+```bash
 
    npm install
 
-   ```
+```
 
   
 
 3. **使用开发者模式本地运行**
 
-   ```bash
+```bash
 
    npm run dev
-
-  
-
-   ```
+```
 
  **构建模式（打包生成最终上线用的文件）**
 
-   ```bash
+```bash
 
    npm run build
 
-  
-
-  ```
+```
 
   
 
