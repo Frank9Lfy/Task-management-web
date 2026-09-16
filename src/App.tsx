@@ -1,56 +1,69 @@
 import { useState, useCallback } from 'react';
-import type { Task } from '@/types/task';
+import type { Task, AppUiState } from '@/types/task';
+import { DEFAULT_UI_STATE } from '@/types/task';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useTaskArchive } from '@/hooks/useTaskArchive';
+import { deserializeTasks } from '@/lib/taskSerializer';
 import { QuadrantChart } from '@/components/QuadrantChart';
 import { TaskList } from '@/components/TaskList';
 import { TaskDialog } from '@/components/TaskDialog';
 import { SmartSuggestions } from '@/components/SmartSuggestions';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { ArchiveManager } from '@/components/ArchiveManager';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, LayoutGrid, List, Sparkles, Trash2, BarChart3, CheckCircle2, Circle } from 'lucide-react';
+import { Plus, LayoutGrid, List, Sparkles, Trash2, BarChart3, CheckCircle2, Circle, Archive } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
 function App() {
   // 使用 useLocalStorage 管理任务数据，自动处理本地存储的读取和写入
-  // 通过自定义 deserialize/serialize 正确处理 Date 类型的序列化
+  // 序列化格式由 src/lib/taskSerializer.ts 统一维护（存档功能共用同一格式）
   const [tasks, setTasks] = useLocalStorage<Task[]>('eisenhower-tasks', [], {
     serialize: (tasks) => JSON.stringify(tasks),
+    deserialize: (str) => deserializeTasks(str) ?? []
+  });
+
+  // 界面状态（图表/列表视图、当前标签页）持久化：重开网页时恢复到上一次编辑的页面
+  const [uiState, setUiState] = useLocalStorage<AppUiState>('eisenhower-ui', DEFAULT_UI_STATE, {
     deserialize: (str) => {
       try {
         const parsed = JSON.parse(str);
-        // 防御性检查：确保解析结果是数组
-        if (!Array.isArray(parsed)) {
-          console.error('[App] localStorage 中的任务数据不是数组，已重置为空数组');
-          return [];
+        if (parsed && typeof parsed === 'object') {
+          return {
+            viewMode: parsed.viewMode === 'list' ? 'list' : 'chart',
+            activeTab: typeof parsed.activeTab === 'string' ? parsed.activeTab : 'all',
+          };
         }
-        return parsed.map((t: any) => ({
-          ...t,
-          deadline: t.deadline ? new Date(t.deadline) : undefined,
-          createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
-          // 确保所有必要字段都有默认值，防止数据损坏
-          id: t.id || Date.now().toString(),
-          title: t.title || '',
-          description: t.description || '',
-          importance: typeof t.importance === 'number' ? t.importance : 50,
-          urgency: typeof t.urgency === 'number' ? t.urgency : 50,
-          completed: typeof t.completed === 'boolean' ? t.completed : false,
-        }));
-      } catch (error) {
-        console.error('[App] 反序列化任务数据失败:', error);
-        return [];
+        return { ...DEFAULT_UI_STATE };
+      } catch {
+        return { ...DEFAULT_UI_STATE };
       }
     }
   });
+  const { viewMode, activeTab } = uiState;
+  const handleViewModeChange = useCallback((mode: 'chart' | 'list') => {
+    setUiState(prev => ({ ...prev, viewMode: mode }));
+  }, [setUiState]);
+  const handleTabChange = useCallback((tab: string) => {
+    setUiState(prev => ({ ...prev, activeTab: tab }));
+  }, [setUiState]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState<{ importance: number; urgency: number } | null>(null);
-  const [activeTab, setActiveTab] = useState('all');
-  const [viewMode, setViewMode] = useState<'chart' | 'list'>('chart');
+  const [isArchiveManagerOpen, setIsArchiveManagerOpen] = useState(false);
 
   // 确认弹窗状态
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  // 恢复存档：同时还原任务数据与界面状态
+  const handleRestoreArchive = useCallback((restoredTasks: Task[], restoredUi: AppUiState) => {
+    setTasks(restoredTasks);
+    setUiState(restoredUi);
+  }, [setTasks, setUiState]);
+
+  // 存档功能：关闭/隐藏页面时自动存档 + 手动存档管理
+  const archive = useTaskArchive({ tasks, ui: uiState, onRestore: handleRestoreArchive });
 
   const handlePositionSelect = useCallback((importance: number, urgency: number) => {
     setSelectedPosition({ importance, urgency });
@@ -157,7 +170,19 @@ function App() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setViewMode(viewMode === 'chart' ? 'list' : 'chart')}
+                  onClick={() => setIsArchiveManagerOpen(true)}
+                  className="h-10 px-4 rounded-xl border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"
+                >
+                  <Archive className="w-4 h-4 mr-2" />
+                  存档
+                </Button>
+              </motion.div>
+
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleViewModeChange(viewMode === 'chart' ? 'list' : 'chart')}
                   className="hidden sm:flex h-10 px-4 rounded-xl border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all"
                 >
                   {viewMode === 'chart' ? <List className="w-4 h-4 mr-2" /> : <LayoutGrid className="w-4 h-4 mr-2" />}
@@ -267,7 +292,7 @@ function App() {
             {/* 任务列表（图表视图下显示） */}
             {viewMode === 'chart' && (
               <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <Tabs value={activeTab} onValueChange={handleTabChange}>
                   <div className="flex items-center justify-between mb-6">
                     <TabsList className="bg-gray-100/80 p-1 rounded-xl">
                       <TabsTrigger
@@ -334,6 +359,20 @@ function App() {
         onSave={handleSaveTask}
         onDelete={handleDeleteTask}
         initialPosition={selectedPosition}
+      />
+
+      {/* 存档管理弹窗 */}
+      <ArchiveManager
+        isOpen={isArchiveManagerOpen}
+        onClose={() => setIsArchiveManagerOpen(false)}
+        archives={archive.archives}
+        currentTaskCount={tasks.length}
+        lastAutoSavedAt={archive.lastAutoSavedAt}
+        onSaveArchive={archive.saveArchive}
+        onDeleteArchive={archive.deleteArchive}
+        onRestoreArchive={archive.restoreArchive}
+        onExportArchive={archive.exportArchive}
+        onImportArchive={archive.importArchive}
       />
 
       {/* 清空确认弹窗 */}

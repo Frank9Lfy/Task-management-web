@@ -11,6 +11,17 @@ export interface Task {
 
 export type QuadrantType = 'urgent-important' | 'not-urgent-important' | 'urgent-not-important' | 'not-urgent-not-important';
 
+/** 应用界面状态（持久化到 localStorage，并随存档一起保存/恢复，用于还原"上一次编辑的页面"） */
+export interface AppUiState {
+  viewMode: 'chart' | 'list';
+  activeTab: string;
+}
+
+export const DEFAULT_UI_STATE: AppUiState = {
+  viewMode: 'chart',
+  activeTab: 'all',
+};
+
 export interface QuadrantInfo {
   type: QuadrantType;
   title: string;

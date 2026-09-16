@@ -23,7 +23,11 @@ A web application helping you better manage your tasks and get rid of deadlines(
 - **实时更新**：管理任务时即时同步更新
 
 - **多样化任务管理**：四象限交互式界面和列表模式可自由切换
-  
+
+- **数据存档**：编辑数据实时自动保存；关闭网页时自动生成可回滚的存档快照（保留最近 5 份）；支持手动创建存档、一键恢复（连同界面状态一起还原）、导出/导入 JSON 存档文件作为备份
+
+- **离线单文件版**：构建产物为单个自包含 HTML 文件，无需服务器、无需安装，双击即可打开使用
+
 
 ## 📦 安装配置与运行
 
@@ -81,9 +85,19 @@ A web application helping you better manage your tasks and get rid of deadlines(
 
   
 
-   ```
+  ```
 
   
+
+### 直接双击打开（离线版，无需安装任何环境）
+
+项目根目录下的 **`四象限任务管理-离线版.html`** 是一个把全部代码（JS/CSS）内联进单个文件的自包含网页：
+
+1. 找到该文件，**双击**即可在默认浏览器中打开，直接开始编辑任务；
+2. 无需 Node.js、无需启动服务器、无需联网；
+3. 重新执行 `npm run build` 后，用 `dist/index.html` 覆盖它即可更新为最新版本。
+
+> 说明：源码根目录的 `index.html` 是开发/构建入口，它引用的是 TypeScript 源码（`/src/main.tsx`），浏览器无法直接运行，因此**不能**直接双击打开——请双击上面的离线版文件。
 
 ## 💡 使用说明
 
@@ -92,6 +106,7 @@ A web application helping you better manage your tasks and get rid of deadlines(
 1. 运行成功即可在网站上编辑
 2. 必须使用<span style="color:red;">同一个</span>浏览器
 3. 使用的浏览器请勿开启**无痕/隐私**模式，也不要设置成关闭浏览器时自动清理，否则编辑的数据无法保存
+4. **数据存档说明**：编辑内容实时自动保存；关闭网页时自动生成一份"自动存档"快照（最多保留 5 份）；点击页面右上角**"存档"**按钮可手动创建存档、恢复历史存档（任务数据和界面状态一并还原）、或将存档导出为 JSON 文件备份/在别的电脑导入恢复。存档数据保存在当前浏览器的本地存储中，换浏览器或换电脑前请先"导出当前数据"。
 
 
 
@@ -119,10 +134,12 @@ Task-management-web/
 ├── package-lock.json
 ├── package.json
 ├── postcss.config.js
+├── 四象限任务管理-离线版.html   ← 双击即可打开的单文件离线版（由 npm run build 生成）
 ├── src
 │   ├── App.css
 │   ├── App.tsx
 │   ├── components
+│   │   ├── ArchiveManager.tsx
 │   │   ├── ConfirmDialog.tsx
 │   │   ├── QuadrantChart.tsx
 │   │   ├── SmartSuggestions.tsx
@@ -133,9 +150,11 @@ Task-management-web/
 │   │      
 │   ├── hooks
 │   │   ├── use-mobile.ts
-│   │   └── useLocalStorage.ts
+│   │   ├── useLocalStorage.ts
+│   │   └── useTaskArchive.ts
 │   ├── index.css
 │   ├── lib
+│   │   ├── taskSerializer.ts
 │   │   └── utils.ts
 │   ├── main.tsx
 │   └── types
