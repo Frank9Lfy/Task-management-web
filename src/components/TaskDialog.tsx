@@ -16,10 +16,15 @@ import { Slider } from '@/components/ui/slider';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, Trash2, Save, X, Sparkles, Clock, Target, AlertCircle } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, startOfDay } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { ConfirmDialog } from './ConfirmDialog';
+
+/** 距截止日期不足该天数且紧急度偏低时，保存前提示提升紧急度 */
+const DEADLINE_SOON_THRESHOLD_DAYS = 3;
+/** 确认提升后建议采用的紧急度值 */
+const SUGGESTED_URGENCY = 70;
 
 interface TaskDialogProps {
   task: Task | null;
@@ -48,9 +53,12 @@ export const TaskDialog: React.FC<TaskDialogProps> = ({
   // 确认弹窗状态
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+  const [showUrgencyPrompt, setShowUrgencyPrompt] = useState(false);
 
   const isEditing = !!task;
 
+  /* eslint-disable react-hooks/set-state-in-effect -- 弹窗打开/切换任务时用 props 同步
+     表单初始值，是受控弹窗的既有模式；为通过 lint 而重构工作正常的同步逻辑风险大于收益 */
   useEffect(() => {
   if (task) {
     setTitle(task.title);
@@ -74,10 +82,26 @@ export const TaskDialog: React.FC<TaskDialogProps> = ({
     setDeadline(undefined);
     setCompleted(false);
   }
-}, [task, initialPosition, isOpen]);
+  }, [task, initialPosition, isOpen]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSaveClick = () => {
     if (!title.trim()) return;
+    // 距截止日期不足3天但紧急度低于50：先询问是否提升紧急度，再走原有保存确认
+    if (deadline && urgency < 50) {
+      const daysLeft = (deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+      if (daysLeft < DEADLINE_SOON_THRESHOLD_DAYS) {
+        setShowUrgencyPrompt(true);
+        return;
+      }
+    }
+    setShowSaveConfirm(true);
+  };
+
+  // 关闭紧急度提示后（无论是否选择提升）继续原有的保存确认流程；
+  // 若确认提升，紧急度已写入 state，随后的保存确认与滑块显示的都是新值
+  const handleUrgencyPromptClose = () => {
+    setShowUrgencyPrompt(false);
     setShowSaveConfirm(true);
   };
 
@@ -270,6 +294,7 @@ export const TaskDialog: React.FC<TaskDialogProps> = ({
                     mode="single"
                     selected={deadline}
                     onSelect={setDeadline}
+                    disabled={{ before: startOfDay(new Date()) }}
                     initialFocus
                   />
                 </PopoverContent>
@@ -354,11 +379,23 @@ export const TaskDialog: React.FC<TaskDialogProps> = ({
         onClose={() => setShowSaveConfirm(false)}
         onConfirm={handleConfirmSave}
         title={isEditing ? "确认保存修改" : "确认创建任务"}
-        description={isEditing 
-          ? `您确定要保存对任务 "${title}" 的修改吗？` 
+        description={isEditing
+          ? `您确定要保存对任务 "${title}" 的修改吗？`
           : `您确定要创建新任务 "${title}" 吗？`
         }
         type={isEditing ? "edit" : "save"}
+      />
+
+      {/* 临近截止但紧急度偏低的提示弹窗 */}
+      <ConfirmDialog
+        isOpen={showUrgencyPrompt}
+        onClose={handleUrgencyPromptClose}
+        onConfirm={() => setUrgency(SUGGESTED_URGENCY)}
+        title="建议提升紧急度"
+        description={`任务 "${title}" 距截止日期（${deadline ? format(deadline, 'yyyy年MM月dd日', { locale: zhCN }) : ''}）已不足 ${DEADLINE_SOON_THRESHOLD_DAYS} 天，但当前紧急度仅为 ${Math.round(urgency)}。临近截止的任务建议按"紧急"处理，是否将紧急度提升至 ${SUGGESTED_URGENCY}？`}
+        type="warning"
+        confirmText={`提升至 ${SUGGESTED_URGENCY}`}
+        cancelText="保持不变"
       />
     </>
   );

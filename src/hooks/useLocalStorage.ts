@@ -24,9 +24,13 @@ export function useLocalStorage<T>(
     initialValue: T,
     options?: UseLocalStorageOptions<T>
 ): [T, React.Dispatch<React.SetStateAction<T>>] {
-    // 将 options 存入 ref，避免 serialize/deserialize 成为 effect 依赖
+    // 将 options 存入 ref，避免 serialize/deserialize 成为 effect 依赖。
+    // 在 effect 中同步最新值而非渲染期间赋值；setValue 只会在事件回调中被调用，
+    // 届时 effect 已执行，读到的仍是最新 options
     const optionsRef = useRef(options);
-    optionsRef.current = options;
+    useEffect(() => {
+        optionsRef.current = options;
+    });
 
     // Lazy initializer：组件首次渲染前，同步从 localStorage 读取数据
     const [storedValue, setStoredValue] = useState<T>(() => {

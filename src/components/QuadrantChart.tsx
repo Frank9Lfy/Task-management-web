@@ -18,7 +18,7 @@ export const QuadrantChart: React.FC<QuadrantChartProps> = ({
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [hoveredTask, setHoveredTask] = useState<Task | null>(null);
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number; importance: number; urgency: number } | null>(null);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!canvasRef.current) return;
@@ -37,9 +37,14 @@ export const QuadrantChart: React.FC<QuadrantChartProps> = ({
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    // 百分比在事件回调中算好，避免渲染期间读取 ref
     setMousePos({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+      x,
+      y,
+      importance: Math.round(Math.max(0, Math.min(100, 100 - (y / rect.height) * 100))),
+      urgency: Math.round(Math.max(0, Math.min(100, (x / rect.width) * 100))),
     });
   };
 
@@ -148,7 +153,9 @@ export const QuadrantChart: React.FC<QuadrantChartProps> = ({
             style={{
               left: `${selectedPosition.urgency}%`,
               top: `${100 - selectedPosition.importance}%`,
-              transform: 'translate(-50%, -50%)'
+              // 用 framer 的 x/y 做居中：静态 transform 会被 framer 的 scale 动画覆盖，导致点位偏移
+              x: '-50%',
+              y: '-50%'
             }}
           >
             <div className="absolute inset-0 bg-purple-400 rounded-full animate-ping opacity-50" />
@@ -174,8 +181,7 @@ export const QuadrantChart: React.FC<QuadrantChartProps> = ({
                 top: mousePos.y - 30,
               }}
             >
-              重要性: {Math.round(100 - (mousePos.y / (canvasRef.current?.clientHeight || 1)) * 100)} | 
-              紧急性: {Math.round((mousePos.x / (canvasRef.current?.clientWidth || 1)) * 100)}
+              重要性: {mousePos.importance} | 紧急性: {mousePos.urgency}
             </div>
           </>
         )}
@@ -197,7 +203,9 @@ export const QuadrantChart: React.FC<QuadrantChartProps> = ({
                 style={{
                   left: `${task.urgency}%`,
                   top: `${100 - task.importance}%`,
-                  transform: 'translate(-50%, -50%)'
+                  // 用 framer 的 x/y 做居中：静态 transform 会被 framer 的 scale 动画覆盖，导致点位偏移
+                  x: '-50%',
+                  y: '-50%'
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -217,7 +225,9 @@ export const QuadrantChart: React.FC<QuadrantChartProps> = ({
                   <motion.div
                     initial={{ opacity: 0, y: 10, scale: 0.9 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 z-50"
+                    // x 由 framer 合成进 transform；Tailwind 的 -translate-x-1/2 同样会被动画覆盖
+                    style={{ x: '-50%' }}
+                    className="absolute bottom-full left-1/2 mb-3 z-50"
                   >
                     <div className="bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl px-4 py-3 whitespace-nowrap shadow-2xl border border-gray-700">
                       <div className="font-semibold text-base mb-1">{task.title}</div>

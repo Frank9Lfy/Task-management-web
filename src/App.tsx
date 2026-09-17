@@ -88,12 +88,12 @@ function App() {
         return [...prev, task];
       }
     });
-  }, []);
+  }, [setTasks]);
 
   const handleDeleteTask = useCallback((id: string) => {
     setTasks(prev => prev.filter(t => t.id !== id));
     toast.success('任务已删除');
-  }, []);
+  }, [setTasks]);
 
   const handleToggleComplete = useCallback((id: string) => {
     setTasks(prev => {
@@ -109,7 +109,7 @@ function App() {
       }
       return prev;
     });
-  }, []);
+  }, [setTasks]);
 
   const handleClearAll = useCallback(() => {
     setShowClearConfirm(true);
@@ -118,7 +118,7 @@ function App() {
   const handleConfirmClear = useCallback(() => {
     setTasks([]);
     toast.success('所有任务已清空');
-  }, []);
+  }, [setTasks]);
 
   const handleAddNew = useCallback(() => {
     setSelectedTask(null);
