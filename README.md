@@ -101,7 +101,7 @@ A web application helping you better manage your tasks and get rid of deadlines(
 1. 运行成功即可在网站上编辑
 2. 必须使用<span style="color:red;">同一个</span>浏览器
 3. 使用的浏览器请勿开启**无痕/隐私**模式，也不要设置成关闭浏览器时自动清理，否则编辑的数据无法保存
-4. **数据存档说明**：编辑内容实时自动保存；关闭网页时自动生成一份"自动存档"快照（最多保留 5 份）；点击页面右上角**"存档"**按钮可手动创建存档、恢复历史存档（任务数据和界面状态一并还原）、或将存档导出为 JSON 文件备份/在别的电脑导入恢复。存档数据保存在当前浏览器的本地存储中，换浏览器或换电脑前请先"导出当前数据"。
+4. **数据存档说明**：编辑内容实时自动保存；关闭网页时自动生成一份"自动存档"快照（最多保留 5 份）；点击页面右上角 **存档** 按钮可手动创建存档、恢复历史存档（任务数据和界面状态一并还原）、或将存档导出为 JSON 文件备份/在别的电脑导入恢复。存档数据保存在当前浏览器的本地存储中，换浏览器或换电脑前请先"导出当前数据"。
 
 
 
@@ -110,7 +110,8 @@ A web application helping you better manage your tasks and get rid of deadlines(
 
 #### 演示视频
 
-[点击观看功能演示视频](https://www.bilibili.com/video/BV1VVKH6vEWv/?spm_id_from=333.1387.upload.video_card.click&vd_source=4103463234aa9151dcd495c6fa3f24f3)
+##### V1版（无显式存档）
+[点击观看V1版功能演示视频](https://www.bilibili.com/video/BV1VVKH6vEWv/?spm_id_from=333.1387.upload.video_card.click&vd_source=4103463234aa9151dcd495c6fa3f24f3)
   
   
 
